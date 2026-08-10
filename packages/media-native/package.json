@@ -1,0 +1,32 @@
+{
+  "name": "@headless-media/native",
+  "version": "0.1.0",
+  "description": "React Native adapter for @headless-media/core. Same contract as @headless-media/react, zero DOM usage at runtime.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "src"],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@headless-media/core": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0"
+  },
+  "devDependencies": {
+    "react": "^18.3.1",
+    "@types/react": "^18.3.3"
+  }
+}
