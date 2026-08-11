@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "pnpm --filter @headless-media/core --filter @headless-media/react --filter @headless-media/ui-react build && tsc -b && vite build",
     "typecheck": "tsc -b --noEmit",
     "preview": "vite preview"
   },
