@@ -85,6 +85,25 @@ describe('PexelsClient', () => {
     return createClient({ apiKey: 'test-key', fetch: fetchMock as never, logEvents: false });
   }
 
+  it('binds the global fetch so browser window.fetch never throws Illegal invocation', async () => {
+    const original = (globalThis as { fetch?: unknown }).fetch;
+    const strictFetch = function (this: unknown, _url: string) {
+      'use strict';
+      if (this !== globalThis) {
+        throw new TypeError("Failed to execute 'fetch' on 'Window': Illegal invocation");
+      }
+      return Promise.resolve(jsonResponse(200, photoPage));
+    } as never;
+    (globalThis as { fetch?: unknown }).fetch = strictFetch;
+    try {
+      const client = createClient({ apiKey: 'test-key', logEvents: false });
+      const data = await client.search();
+      expect(data.page).toBe(1);
+    } finally {
+      (globalThis as { fetch?: unknown }).fetch = original;
+    }
+  });
+
   it('sends the API key as the Authorization header', async () => {
     const client = makeClient();
     await client.search({ query: 'cats', page: 2 });

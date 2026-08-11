@@ -60,6 +60,11 @@ pnpm dev         # start the Vite dev server for apps/web
    `.env.example` (`VITE_PEXELS_API_KEY=...`).
 4. `pnpm dev` and open <http://localhost:5173>.
 
+In dev the browser never calls `api.pexels.com` directly: Vite proxies
+`/pexels/*` to the Pexels API (see `apps/web/vite.config.ts`), which avoids CORS
+and browser-side blockers. Production builds use the direct API URL (Pexels
+sends the right CORS headers), overridable with `VITE_PEXELS_BASE_URL`.
+
 Without a key the app shows a setup screen; everything else builds and tests fine
 headlessly (no browser or manual verification required).
 

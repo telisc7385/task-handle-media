@@ -81,11 +81,20 @@ export class PexelsClient {
       baseUrl: (config.baseUrl ?? DEFAULT_BASE_URL).replace(/\/$/, ''),
       logEvents: config.logEvents ?? true,
     };
-    this.fetchImpl = config.fetch ?? ((globalThis as { fetch?: FetchLike }).fetch as FetchLike);
-    if (!this.fetchImpl) {
-      throw new PexelsClientError(
-        'No global `fetch` available. Pass `{ fetch }` to createClient() or run in Node 18+/browser.',
-      );
+    const injected = config.fetch;
+    if (injected) {
+      this.fetchImpl = injected;
+    } else {
+      const g = globalThis as { fetch?: FetchLike };
+      if (!g.fetch) {
+        throw new PexelsClientError(
+          'No global `fetch` available. Pass `{ fetch }` to createClient() or run in Node 18+/browser.',
+        );
+      }
+      // Browsers require `window.fetch` to be invoked with `this === window`.
+      // Calling the extracted reference as a plain method would throw
+      // `TypeError: Illegal invocation`, so bind it to the global object.
+      this.fetchImpl = g.fetch.bind(globalThis) as FetchLike;
     }
     this.cache = config.cache ?? (config.cacheTtlMs === false ? null : new TtlCache({ ttlMs: config.cacheTtlMs }));
     this.events = config.emitter ?? new EventEmitter<MediaEvent>();
@@ -186,7 +195,11 @@ export class PexelsClient {
         headers: { Authorization: this.config.apiKey },
       });
     } catch (cause) {
-      throw new PexelsClientError(`Network error while calling Pexels: ${url}`, { url, cause });
+      const detail = cause instanceof Error ? ` (${cause.message})` : '';
+      throw new PexelsClientError(`Network error while calling Pexels: ${url}${detail}`, {
+        url,
+        cause,
+      });
     }
 
     if (!response.ok) {

@@ -8,6 +8,14 @@ type Tab = 'photos' | 'videos';
 
 const API_KEY = import.meta.env.VITE_PEXELS_API_KEY as string | undefined;
 
+// In dev the browser goes through Vite's `/pexels` proxy (see vite.config.ts) so
+// api.pexels.com is never hit directly — avoids CORS and browser-side blockers.
+// For a built bundle the direct API URL is used instead (Pexels sends CORS
+// headers for it). Override at any time with VITE_PEXELS_BASE_URL.
+const PEXELS_BASE_URL: string | undefined =
+  (import.meta.env.VITE_PEXELS_BASE_URL as string | undefined) ??
+  (import.meta.env.DEV ? '/pexels' : 'https://api.pexels.com/v1');
+
 export function App() {
   if (!API_KEY) {
     return (
@@ -22,7 +30,7 @@ export function App() {
   }
 
   return (
-    <MediaProvider apiKey={API_KEY}>
+    <MediaProvider apiKey={API_KEY} baseUrl={PEXELS_BASE_URL}>
       <Shell />
     </MediaProvider>
   );

@@ -14,6 +14,7 @@ export class PexelsError extends Error {
   readonly status?: number;
   readonly code?: string;
   readonly url?: string;
+  readonly cause?: unknown;
 
   constructor(message: string, options: PexelsErrorOptions = {}) {
     super(message);
@@ -21,6 +22,7 @@ export class PexelsError extends Error {
     this.status = options.status;
     this.code = options.code;
     this.url = options.url;
+    this.cause = options.cause;
   }
 }
 
